@@ -5,17 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
   <title>NASA APOD</title>
+  <!-- Precarga de fuentes -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5.3.8 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <!-- Font Awesome 6.5.0 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Estilos personalizados -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="d-flex flex-column min-vh-100">
 
+  <!-- Fondo animado del espacio -->
   <div class="space-bg" aria-hidden="true"></div>
 
+  <!-- Barra de navegación -->
   <nav class="navbar navbar-expand-lg navbar-dark site-nav sticky-top">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center gap-2" href="#">
@@ -34,6 +40,7 @@
     </div>
   </nav>
 
+  <!-- Cabecera -->
   <header class="hero-section text-center">
     <div class="container">
       <p class="hero-eyebrow mb-2">
@@ -44,17 +51,29 @@
     </div>
   </header>
 
+  <!-- Contenido principal -->
   <main class="container flex-grow-1 pb-5">
     <div class="row justify-content-center g-4">
       <div class="col-12 col-lg-10 col-xl-9">
 
+        <!-- Panel de selección de fecha -->
         <div class="glass-panel date-panel mb-4">
           <div class="row align-items-end g-3">
             <div class="col-md-8">
               <label for="fecha-nasa" class="form-label panel-label">
                 <i class="fa-regular fa-calendar me-2"></i><span data-i18n="dateLabel"></span>
               </label>
-              <input type="date" class="form-control form-control-lg date-input" id="fecha-nasa" />
+              <div class="input-group">
+                <!-- Botón día anterior -->
+                <button class="btn btn-outline-light" type="button" id="btn-anterior" aria-label="Día anterior">
+                  <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <input type="date" class="form-control form-control-lg date-input" id="fecha-nasa" />
+                <!-- Botón día siguiente -->
+                <button class="btn btn-outline-light" type="button" id="btn-siguiente" aria-label="Día siguiente">
+                  <i class="fa-solid fa-chevron-right"></i>
+                </button>
+              </div>
             </div>
             <div class="col-md-4">
               <button type="button" class="btn btn-nasa w-100 btn-lg" id="btn-hoy">
@@ -64,6 +83,7 @@
           </div>
         </div>
 
+        <!-- Artículo del APOD (se actualiza dinámicamente) -->
         <article class="glass-panel apod-panel overflow-hidden" id="img-dia" aria-live="polite">
           <div class="apod-placeholder text-center py-5">
             <div class="spinner-border text-info" role="status"></div>
@@ -74,6 +94,7 @@
       </div>
     </div>
 
+    <!-- Sección de favoritos -->
     <section class="favorites-section mt-5 pt-2" id="contenedorFavoritos">
       <div class="container">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
@@ -90,6 +111,7 @@
     </section>
   </main>
 
+  <!-- Pie de página -->
   <footer class="site-footer mt-auto">
     <div class="container text-center">
       <div class="footer-badges d-flex flex-wrap justify-content-center gap-2 mb-3">
@@ -102,6 +124,7 @@
     </div>
   </footer>
 
+  <!-- Contenedor de notificaciones toast -->
   <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toast-nasa" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
@@ -111,6 +134,7 @@
     </div>
   </div>
 
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
   <script src="i18n.js"></script>
   <script src="app.js"></script>

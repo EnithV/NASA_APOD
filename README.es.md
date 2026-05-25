@@ -3,7 +3,7 @@
 **Repositorio:** [github.com/EnithV/NASA_APOD](https://github.com/EnithV/NASA_APOD)  
 **Sitio en vivo:** https://enithv.github.io/NASA_APOD/
 
-Explorador web de la **Astronomy Picture of the Day (APOD)** de la NASA: elige una fecha, consulta la imagen o el video, lee la explicación científica y guarda favoritos en el navegador. **Interfaz bilingüe (español / inglés).**
+Aplicación web de una sola página para explorar la **Astronomy Picture of the Day (APOD)** de la NASA: consulta por fecha, visualiza imágenes o videos con su explicación, abre la versión HD cuando exista y gestiona favoritos en el navegador. **Interfaz bilingüe (español / inglés).**
 
 📄 [English version — README.md](./README.md)
 
@@ -11,21 +11,24 @@ Explorador web de la **Astronomy Picture of the Day (APOD)** de la NASA: elige u
 
 ## Características
 
-- Consulta APOD por **fecha** (por defecto, el día actual).
-- Bloqueo de **fechas futuras**.
-- Soporte para contenido **imagen** o **video**.
-- **Favoritos** en `localStorage` con miniaturas y acceso rápido.
-- Indicador visual si el APOD actual ya está guardado.
-- Selector de idioma **ES / EN** (preferencia guardada en el navegador).
-- Diseño responsive con tema espacial oscuro y Bootstrap 5.
+| Área | Detalle |
+|------|---------|
+| **Consulta APOD** | Cualquier fecha desde el **16 de junio de 1995** (inicio del archivo) hasta **hoy** |
+| **Navegación** | Selector de fecha, botones **día anterior / siguiente** y atajo **Hoy** |
+| **Medios** | Imagen o video embebido; enlace **Ver imagen en HD** cuando la API devuelve `hdurl` |
+| **Favoritos** | Guardar, quitar (toggle en la tarjeta principal) y eliminar desde la cuadrícula; en `localStorage` |
+| **Idioma** | Interfaz completa **ES / EN** desde el navbar; preferencia en `localStorage` (`nasa-lang`) |
+| **Experiencia** | Toasts de Bootstrap, estados de carga, validación de rango, imágenes con `loading="lazy"` |
+| **Diseño** | Tema espacial oscuro, paneles glassmorphism, tipografías Orbitron y DM Sans |
 
 ---
 
 ## Tecnologías
 
-- HTML5, CSS3, JavaScript (vanilla)
+- HTML5, CSS3, JavaScript vanilla (ES6+)
 - [Bootstrap 5.3](https://getbootstrap.com/)
 - [Font Awesome 6](https://fontawesome.com/)
+- Google Fonts: Orbitron, DM Sans
 - [NASA Open APIs — APOD](https://api.nasa.gov/)
 
 ---
@@ -34,10 +37,10 @@ Explorador web de la **Astronomy Picture of the Day (APOD)** de la NASA: elige u
 
 ```
 NASA/
-├── index.html    # Layout, selector de idioma y fecha
-├── i18n.js       # Traducciones ES / EN
-├── app.js        # Lógica APOD, favoritos y API NASA
-├── style.css     # Estilos tema espacial
+├── index.html    # Layout, controles de fecha, sección favoritos, toasts
+├── i18n.js       # Cadenas ES / EN y cambio de idioma
+├── app.js        # API NASA, navegación por fechas, favoritos, renderizado
+├── style.css     # Tema espacial, paneles glass, diseño responsive
 ├── README.md     # Inglés
 └── README.es.md  # Español (este archivo)
 ```
@@ -47,13 +50,13 @@ NASA/
 ## Requisitos
 
 1. Clave gratuita de la NASA: [api.nasa.gov](https://api.nasa.gov/) → *Generate API Key*.
-2. Sustituye la clave en `app.js` (parámetro `api_key` en la URL de `cargarImagen`).
+2. Configura tu clave en `app.js`, dentro de `cargarImagen()`:
 
 ```js
 const url = `https://api.nasa.gov/planetary/apod?api_key=TU_API_KEY&date=${fechaElegida}`;
 ```
 
-> No subas claves API a repositorios públicos. Usa variables de entorno o archivos locales ignorados por Git.
+> No subas claves API a repositorios públicos. En producción, usa variables de entorno o un archivo local en `.gitignore`.
 
 ---
 
@@ -70,22 +73,31 @@ Abre la URL indicada (ej. `http://localhost:3000`). Se requiere conexión a inte
 
 ## Uso
 
-1. Al cargar la página se muestra el APOD de **hoy**.
-2. Cambia la fecha con el selector para explorar otros días.
-3. Pulsa **Hoy** para volver a la fecha actual.
-4. Usa **ES / EN** en la barra de navegación para cambiar el idioma.
-5. Pulsa **Guardar en favoritos** para almacenar el APOD actual.
-6. En **Mis favoritos**, usa **Ver APOD** para abrir uno guardado.
+1. **Al cargar** — Se obtiene automáticamente el APOD de hoy.
+2. **Cambiar fecha** — Usa el input, los botones **← / →** o **Hoy**.
+3. **Idioma** — Cambia **ES / EN** en la barra superior; se actualizan textos y mensajes.
+4. **Favoritos** — El botón con corazón en la tarjeta principal agrega o quita el APOD actual.
+5. **Cuadrícula de favoritos** — **Ver APOD** abre uno guardado; el icono de papelera lo elimina de la lista.
+6. **HD** — Si está disponible, **Ver imagen en HD** abre el archivo en alta resolución en otra pestaña.
 
-Los favoritos se guardan bajo la clave `NASA-favoritos` en `localStorage`.
+Los favoritos se guardan con la clave `NASA-favoritos` en `localStorage` (por navegador).
+
+---
+
+## Validación y errores
+
+- **Fechas futuras** — Bloqueadas con toast; el input vuelve a hoy.
+- **Antes del 1995-06-16** — Mensaje específico (el archivo APOD aún no existía).
+- **Errores de API o red** — Tarjeta de error con sugerencia de probar otra fecha.
+- **Favorito duplicado** — Gestionado con toggle (volver a pulsar quita el favorito).
 
 ---
 
 ## GitHub Pages
 
-1. Sube el proyecto a [EnithV/NASA_APOD](https://github.com/EnithV/NASA_APOD).
+1. Sube el código a [EnithV/NASA_APOD](https://github.com/EnithV/NASA_APOD).
 2. **Settings → Pages →** rama `main`, carpeta `/ (root)`.
-3. URL del sitio: https://enithv.github.io/NASA_APOD/
+3. URL pública: https://enithv.github.io/NASA_APOD/
 
 ---
 
