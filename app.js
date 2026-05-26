@@ -1,11 +1,11 @@
 /**
- * APOD NASA - Lógica principal.
- * Maneja la carga de la imagen astronómica del día, la navegación de fechas,
- * la gestión de favoritos (agregar, eliminar) y las notificaciones.
+ * NASA APOD — main application logic.
+ * Loads Astronomy Picture of the Day data, date navigation,
+ * favorites (add/remove), and toast notifications.
  */
 
 /* -------------------------------------------------------------------------- */
-/*  REFERENCIAS AL DOM                                                        */
+/*  DOM references                                                          */
 /* -------------------------------------------------------------------------- */
 const imagenDia = document.getElementById("img-dia");
 const fechaInput = document.getElementById("fecha-nasa");
@@ -16,20 +16,20 @@ const listaFavoritos = document.getElementById("listaFavoritos");
 const favoritosCount = document.getElementById("favoritos-count");
 
 /* -------------------------------------------------------------------------- */
-/*  CONSTANTES Y ESTADO GLOBAL                                                */
+/*  Constants and global state                                                */
 /* -------------------------------------------------------------------------- */
 const hoy = new Date().toISOString().split("T")[0];
-const FECHA_MINIMA = "1995-06-16"; // El archivo APOD comienza en esta fecha
+const FECHA_MINIMA = "1995-06-16"; // APOD archive start date
 
 fechaInput.value = hoy;
 fechaInput.max = hoy;
 fechaInput.min = FECHA_MINIMA;
 
-let datosActuales = {};      // Almacena los datos del APOD que se está mostrando
-let toastInstance = null;    // Instancia del toast de Bootstrap
+let datosActuales = {};      // Current APOD payload shown in the main panel
+let toastInstance = null;    // Bootstrap toast instance
 
 /* -------------------------------------------------------------------------- */
-/*  INICIALIZACIÓN DEL TOAST                                                  */
+/*  Toast initialization                                                    */
 /* -------------------------------------------------------------------------- */
 function initToast() {
   const el = document.getElementById("toast-nasa");
@@ -39,9 +39,9 @@ function initToast() {
 }
 
 /**
- * Muestra una notificación toast.
- * @param {string} message - Texto del mensaje.
- * @param {string} [type="info"] - Tipo: 'success', 'warning', 'danger', 'info'.
+ * Displays a toast notification.
+ * @param {string} message - Message text.
+ * @param {string} [type="info"] - Type: 'success', 'warning', 'danger', 'info'.
  */
 function showToast(message, type = "info") {
   const body = document.getElementById("toast-nasa-body");
@@ -57,12 +57,12 @@ function showToast(message, type = "info") {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  UTILIDADES                                                                */
+/*  Utilities                                                               */
 /* -------------------------------------------------------------------------- */
 /**
- * Escapa texto para inserción segura en HTML.
- * @param {string} text - Texto a escapar.
- * @returns {string} Texto escapado.
+ * Escapes text for safe HTML insertion.
+ * @param {string} text - Raw text.
+ * @returns {string} Escaped HTML string.
  */
 function escapeHtml(text) {
   const div = document.createElement("div");
@@ -71,7 +71,7 @@ function escapeHtml(text) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  RENDERIZADO DE ESTADOS DEL PANEL PRINCIPAL                                 */
+/*  Main panel state rendering                                              */
 /* -------------------------------------------------------------------------- */
 function renderLoading() {
   imagenDia.innerHTML = `
@@ -83,8 +83,8 @@ function renderLoading() {
 }
 
 /**
- * Muestra un mensaje de error, pudiendo ser específico para fechas anteriores a 1995.
- * @param {boolean} [isBeforeMin=false] - Indica si la fecha es anterior al mínimo.
+ * Renders an error state; supports the pre-1995 archive edge case.
+ * @param {boolean} [isBeforeMin=false] - True when the date is before the archive minimum.
  */
 function renderError(isBeforeMin = false) {
   const errorTitle = isBeforeMin ? t("errorDateBeforeApod") : t("errorTitle");
@@ -101,14 +101,14 @@ function renderError(isBeforeMin = false) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  CARGA DE APOD DESDE LA API                                                */
+/*  APOD API fetch                                                          */
 /* -------------------------------------------------------------------------- */
 /**
- * Carga la APOD para una fecha determinada.
- * @param {string} fechaElegida - Fecha en formato YYYY-MM-DD.
+ * Loads APOD content for the given date.
+ * @param {string} fechaElegida - Date in YYYY-MM-DD format.
  */
 function cargarImagen(fechaElegida) {
-  // Validación extra: si la fecha es anterior al mínimo, mostrar error de inmediato
+  // Reject dates before the archive minimum before calling the API
   if (fechaElegida < FECHA_MINIMA) {
     renderError(true);
     fechaInput.value = fechaElegida;
@@ -127,7 +127,7 @@ function cargarImagen(fechaElegida) {
     })
     .then((datos) => mostrarDatos(datos))
     .catch(() => {
-      // Si la fecha es anterior a 1995, el error es esperado
+      // Expected failure when the date predates the APOD archive
       if (fechaElegida < FECHA_MINIMA) {
         renderError(true);
       } else {
@@ -137,11 +137,11 @@ function cargarImagen(fechaElegida) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  MOSTRAR DATOS DEL APOD EN EL PANEL PRINCIPAL                               */
+/*  Render APOD in the main panel                                           */
 /* -------------------------------------------------------------------------- */
 /**
- * Construye el contenido del APOD (imagen/video, metadatos, botón de favorito).
- * @param {object} datos - Objeto JSON de la API de APOD.
+ * Builds the APOD panel (media, metadata, favorite button).
+ * @param {object} datos - APOD API response object.
  */
 function mostrarDatos(datos) {
   datosActuales = datos;
@@ -151,7 +151,7 @@ function mostrarDatos(datos) {
     ? `<video src="${escapeHtml(datos.url)}" controls class="w-100 h-100"></video>`
     : `<img src="${escapeHtml(datos.url)}" alt="${escapeHtml(datos.title)}" loading="lazy">`;
 
-  // Enlace a la versión HD de la imagen si está disponible
+  // HD image link when provided by the API
   const hdLinkHtml = (!esVideo && datos.hdurl)
     ? `<a href="${escapeHtml(datos.hdurl)}" target="_blank" rel="noopener" class="apod-hd-link">
          <i class="fa-solid fa-maximize me-1"></i>${t("viewHD")}
@@ -182,41 +182,40 @@ function mostrarDatos(datos) {
     </div>
   `;
 
-  // Evento para alternar favorito (agregar / eliminar)
+  // Favorite toggle handler
   document.getElementById("botonFavorito")?.addEventListener("click", toggleFavorito);
 }
 
 /* -------------------------------------------------------------------------- */
-/*  GESTIÓN DE FAVORITOS (AGREGAR / ELIMINAR)                                  */
+/*  Favorites (add / remove)                                                  */
 /* -------------------------------------------------------------------------- */
 /**
- * Alterna el estado de favorito para el APOD actual.
- * Si ya existe, lo elimina; si no, lo agrega.
+ * Toggles favorite state for the current APOD entry.
  */
 function toggleFavorito() {
   const favoritos = JSON.parse(localStorage.getItem("NASA-favoritos")) || [];
   const index = favoritos.findIndex(f => f.date === datosActuales.date);
 
   if (index === -1) {
-    // Agregar
+    // Add to favorites
     favoritos.push(datosActuales);
     localStorage.setItem("NASA-favoritos", JSON.stringify(favoritos));
     showToast(t("toastSaved"), "success");
   } else {
-    // Eliminar
+    // Remove from favorites
     favoritos.splice(index, 1);
     localStorage.setItem("NASA-favoritos", JSON.stringify(favoritos));
     showToast(t("toastRemoved"), "info");
   }
 
-  // Reconstruir el panel principal y la lista de favoritos
+  // Refresh main panel and favorites grid
   mostrarDatos(datosActuales);
   mostrarListaFavoritos();
 }
 
 /**
- * Elimina un favorito por su índice en la lista.
- * @param {number} index - Índice en el array de favoritos.
+ * Removes a favorite by list index.
+ * @param {number} index - Index in the favorites array.
  */
 function eliminarFavorito(index) {
   const favoritos = JSON.parse(localStorage.getItem("NASA-favoritos")) || [];
@@ -226,7 +225,7 @@ function eliminarFavorito(index) {
     showToast(t("toastRemoved"), "info");
     mostrarListaFavoritos();
 
-    // Si el APOD mostrado era el eliminado, actualizar su botón de favorito
+    // Sync favorite button if the visible APOD was removed
     if (datosActuales.date === favoritos[index]?.date) {
       mostrarDatos(datosActuales);
     }
@@ -234,7 +233,7 @@ function eliminarFavorito(index) {
 }
 
 /**
- * Actualiza el contador de favoritos en la interfaz.
+ * Updates the favorites counter in the UI.
  */
 function updateFavoritosCount() {
   const favoritos = JSON.parse(localStorage.getItem("NASA-favoritos")) || [];
@@ -244,7 +243,7 @@ function updateFavoritosCount() {
 }
 
 /**
- * Construye la cuadrícula de tarjetas de favoritos.
+ * Renders the favorites card grid.
  */
 function mostrarListaFavoritos() {
   const favoritos = JSON.parse(localStorage.getItem("NASA-favoritos")) || [];
@@ -291,13 +290,13 @@ function mostrarListaFavoritos() {
       </article>
     `;
 
-    // Evento para ver un favorito
+    // Open favorite in main panel
     col.querySelector(".btn-view-fav").addEventListener("click", (e) => {
       const idx = parseInt(e.currentTarget.dataset.favIndex);
       cargarFecha(idx);
     });
 
-    // Evento para eliminar un favorito
+    // Delete favorite from list
     col.querySelector(".btn-delete-fav").addEventListener("click", (e) => {
       e.stopPropagation();
       const idx = parseInt(e.currentTarget.dataset.favIndex);
@@ -309,8 +308,8 @@ function mostrarListaFavoritos() {
 }
 
 /**
- * Carga un favorito en el panel principal y desplaza la vista.
- * @param {number} favoritoIndex - Índice en el array de favoritos.
+ * Loads a favorite into the main panel and scrolls to top.
+ * @param {number} favoritoIndex - Index in the favorites array.
  */
 function cargarFecha(favoritoIndex) {
   const favoritos = JSON.parse(localStorage.getItem("NASA-favoritos")) || [];
@@ -322,15 +321,15 @@ function cargarFecha(favoritoIndex) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  NAVEGACIÓN DE FECHAS                                                      */
+/*  Date navigation                                                         */
 /* -------------------------------------------------------------------------- */
 /**
- * Cambia la fecha en el input sumando o restando días.
- * @param {number} dias - Número de días a desplazar (negativo para anterior).
+ * Shifts the date input by the given number of days.
+ * @param {number} dias - Day offset (negative = previous day).
  */
 function cambiarDia(dias) {
   if (!fechaInput.value) return;
-  const fechaActual = new Date(fechaInput.value + "T12:00:00"); // mediodía para evitar zona horaria
+  const fechaActual = new Date(fechaInput.value + "T12:00:00"); // noon UTC avoids DST edge cases
   fechaActual.setDate(fechaActual.getDate() + dias);
   const nuevaFecha = fechaActual.toISOString().split("T")[0];
 
@@ -347,7 +346,7 @@ function cambiarDia(dias) {
   cargarImagen(nuevaFecha);
 }
 
-// Eventos de navegación
+// Date control listeners
 fechaInput.addEventListener("change", () => {
   const fechaElegida = fechaInput.value;
   if (fechaElegida > hoy) {
@@ -373,11 +372,10 @@ btnAnterior?.addEventListener("click", () => cambiarDia(-1));
 btnSiguiente?.addEventListener("click", () => cambiarDia(1));
 
 /* -------------------------------------------------------------------------- */
-/*  SINCRONIZACIÓN CON CAMBIO DE IDIOMA                                       */
+/*  Language change hook (called from i18n.js)                              */
 /* -------------------------------------------------------------------------- */
 /**
- * Esta función será llamada por i18n.js después de cambiar el idioma.
- * Reconstruye el panel principal y la lista de favoritos con las nuevas traducciones.
+ * Re-renders UI strings after a locale switch.
  */
 window.onLanguageChange = () => {
   if (datosActuales?.date) {
@@ -385,7 +383,7 @@ window.onLanguageChange = () => {
   } else if (imagenDia.querySelector(".apod-loading")) {
     renderLoading();
   } else if (imagenDia.querySelector(".apod-error")) {
-    // En caso de error se vuelve a mostrar con los textos traducidos
+    // Re-render error state with updated translations
     const fechaActual = fechaInput.value;
     if (fechaActual < FECHA_MINIMA) {
       renderError(true);
@@ -397,7 +395,7 @@ window.onLanguageChange = () => {
 };
 
 /* -------------------------------------------------------------------------- */
-/*  INICIALIZACIÓN                                                            */
+/*  Bootstrap on load                                                       */
 /* -------------------------------------------------------------------------- */
 initLanguageSwitcher();
 initToast();

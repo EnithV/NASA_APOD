@@ -1,6 +1,6 @@
 /**
- * Objeto de traducciones para ES y EN.
- * Todas las claves se utilizan mediante la función t(key).
+ * UI strings for Spanish (es) and English (en).
+ * Keys are resolved through t(key).
  */
 const I18N = {
   es: {
@@ -81,24 +81,22 @@ const I18N = {
   },
 };
 
-/**
- * Idioma actual. Se recupera de localStorage o del navegador.
- */
+/** Active locale (localStorage or browser default). */
 let currentLang = localStorage.getItem("nasa-lang") || (navigator.language.startsWith("es") ? "es" : "en");
 
 /**
- * Traduce una clave. Si no existe, devuelve la clave en inglés o la propia clave.
- * @param {string} key - Clave de traducción.
- * @returns {string} Texto traducido.
+ * Returns the string for a translation key (fallback: en, then key).
+ * @param {string} key - Translation key.
+ * @returns {string} Localized label.
  */
 function t(key) {
   return I18N[currentLang][key] ?? I18N.en[key] ?? key;
 }
 
 /**
- * Formatea el contador de favoritos según el número.
- * @param {number} n - Cantidad de favoritos.
- * @returns {string} Texto con el número insertado.
+ * Formats the favorites counter label for the given count.
+ * @param {number} n - Number of saved items.
+ * @returns {string} Localized count string.
  */
 function formatSavedCount(n) {
   const tpl = n === 1 ? t("savedCount") : t("savedCountPlural");
@@ -106,8 +104,7 @@ function formatSavedCount(n) {
 }
 
 /**
- * Aplica las traducciones al DOM.
- * Actualiza atributos data-i18n, data-i18n-html, meta description, título y aria labels.
+ * Applies translations to the DOM (data-i18n, meta, title, aria-label).
  */
 function applyPageTranslations() {
   document.documentElement.lang = currentLang;
@@ -138,8 +135,8 @@ function applyPageTranslations() {
 }
 
 /**
- * Cambia el idioma de la aplicación.
- * @param {string} lang - Código de idioma ('es' o 'en').
+ * Switches application locale.
+ * @param {string} lang - Locale code ('es' or 'en').
  */
 function setLanguage(lang) {
   if (!I18N[lang]) return;
@@ -151,9 +148,7 @@ function setLanguage(lang) {
   }
 }
 
-/**
- * Inicializa los botones de cambio de idioma y aplica las traducciones.
- */
+/** Wires language pills and applies the initial locale. */
 function initLanguageSwitcher() {
   document.querySelectorAll(".lang-pill").forEach((btn) => {
     btn.addEventListener("click", (e) => {
